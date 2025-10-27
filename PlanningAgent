@@ -1,0 +1,53 @@
+# Problem: Planning to Have Coffee
+# Define Action class
+class Action:
+    def __init__(self, name, preconditions, add_effects, del_effects):
+        self.name = name
+        self.preconditions = set(preconditions)
+        self.add_effects = set(add_effects)
+        self.del_effects = set(del_effects)
+    def is_applicable(self, state):
+        """Check if action can be applied in the current state"""
+        return self.preconditions.issubset(state)
+    def apply(self, state):
+        """Apply action: remove delete effects, add add effects"""
+        new_state = set(state)
+        new_state -= self.del_effects
+        new_state |= self.add_effects
+        return new_state
+    def __repr__(self):
+        return self.name
+# Planning function (Depth-limited DFS)
+def plan(initial_state, goal_state, actions, max_depth=10):
+    def dfs(state, plan_so_far, depth):
+        if goal_state.issubset(state):
+            return plan_so_far
+        if depth == 0:
+            return None
+        for action in actions:
+            if action.is_applicable(state):
+                new_state = action.apply(state)
+                new_plan = dfs(new_state, plan_so_far + [action], depth - 1)
+                if new_plan is not None:
+                    return new_plan
+        return None
+    return dfs(initial_state, [], max_depth)
+# Define actions
+actions = [
+    Action("go_to_shop", ["at_home"], ["at_shop"], ["at_home"]),
+    Action("buy_coffee", ["at_shop"], ["have_coffee"], [])
+]
+# Define states
+initial_state = {"at_home"}
+goal_state = {"have_coffee"}
+# Run planner
+solution = plan(initial_state, goal_state, actions)
+print("Initial State:", initial_state)
+print("Goal State:", goal_state)
+
+if solution:
+    print("\nPlan to achieve goal:")
+    for step in solution:
+        print("-", step)
+else:
+    print("No plan found.")
