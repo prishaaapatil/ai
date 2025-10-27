@@ -1,0 +1,45 @@
+# Iterative Deepening Depth First Search (IDDFS)
+# with Path Cost and Depth of Goal Found
+graph = {
+    'A': [('B', 1), ('C', 2)],
+    'B': [('D', 3), ('E', 4)],
+    'C': [('F', 2), ('G', 1)],
+    'D': [('H', 1), ('I', 2)],
+    'E': [],
+    'F': [('K', 3)],
+    'G': [],
+    'H': [],
+    'I': [],
+    'K': []
+}
+def dls(node, goal, depth, path, cost):
+    """Depth-Limited Search"""
+    if depth == 0 and node == goal:
+        return path, cost
+    if depth > 0:
+        for (child, edge_cost) in graph.get(node, []):
+            result = dls(child, goal, depth - 1, path + [child], cost + edge_cost)
+            if result:
+                return result
+    return None
+def iddfs(start, goal, max_depth):
+    """Iterative Deepening Search"""
+    for depth in range(max_depth + 1):
+        print(f"\nSearching at depth limit: {depth}")
+        result = dls(start, goal, depth, [start], 0)
+        if result:
+            path, total_cost = result
+            return path, total_cost, depth
+    return None, None, None
+# --- Example ---
+start = 'A'
+goal = 'G'
+max_depth = 4
+path, total_cost, found_depth = iddfs(start, goal, max_depth)
+if path:
+    print("\n Goal Found!")
+    print(f"Path: {' → '.join(path)}")
+    print(f"Total Path Cost: {total_cost}")
+    print(f"Goal found at Depth: {found_depth}")
+else:
+    print(f"\n Goal '{goal}' not found within depth {max_depth}.")
