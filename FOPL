@@ -1,0 +1,244 @@
+# STEP 1: Knowledge base (English)
+sentences = [
+    "If it is sunny and warm, you will enjoy.",
+    "If it is raining, you will get wet.",
+    "It is warm.",
+    "It is raining.",
+    "It is sunny."
+]
+goal = "You will enjoy."
+
+print("=== STEP 1: Given Statements ===")
+for s in sentences:
+    print("-", s)
+print("Goal:", goal)
+
+# -------------------------------
+# STEP 2: Conversion to FOPL
+# -------------------------------
+print("\n=== STEP 2: Conversion to FOPL ===")
+fopl = [
+    "sunny ∧ warm → enjoy",
+    "raining → wet",
+    "warm",
+    "raining",
+    "sunny"
+]
+for i, f in enumerate(fopl, 1):
+    print(f"{i}. {f}")
+
+# -------------------------------
+# STEP 3: Conversion to CNF
+# -------------------------------
+print("\n=== STEP 3: Conversion to CNF (Clauses) ===")
+cnf = [
+    "¬sunny ∨ ¬warm ∨ enjoy",  # from sunny ∧ warm → enjoy
+    "¬raining ∨ wet",          # from raining → wet
+    "warm",
+    "raining",
+    "sunny"
+]
+for i, c in enumerate(cnf, 1):
+    print(f"({i}) {c}")
+
+# -------------------------------
+# STEP 4: Resolution
+# -------------------------------
+print("\n=== STEP 4: Resolution Proof for goal (enjoy) ===")
+print("Negate the goal: ¬enjoy")
+clauses = cnf + ["¬enjoy"]
+
+print("Clauses after adding negated goal:")
+for i, c in enumerate(clauses, 1):
+    print(f"({i}) {c}")
+
+print("\nResolution Steps:")
+print("1. From (¬sunny ∨ ¬warm ∨ enjoy) and (¬enjoy) → derive (¬sunny ∨ ¬warm)")
+print("2. Using 'warm' (fact) → derive (¬sunny)")
+print("3. Using 'sunny' (fact) → contradiction (empty clause)")
+print("\n Therefore, goal 'enjoy' is PROVED by Resolution.")
+
+# -------------------------------
+# STEP 5: Forward Chaining
+# -------------------------------
+print("\n=== STEP 5: Forward Chaining ===")
+
+rules = [
+    {"if": {"sunny", "warm"}, "then": "enjoy"},
+    {"if": {"raining"}, "then": "wet"}
+]
+facts = {"sunny", "warm", "raining"}
+
+print("Initial Facts:", facts)
+derived = set()
+
+while True:
+    new_fact_found = False
+    for rule in rules:
+        if rule["then"] not in facts and rule["if"].issubset(facts):
+            facts.add(rule["then"])
+            derived.add(rule["then"])
+            print("Derived:", rule["then"])
+            new_fact_found = True
+    if not new_fact_found:
+        break
+
+if "enjoy" in facts:
+    print("\n Goal 'enjoy' found using Forward Chaining!")
+else:
+    print("\n Goal 'enjoy' not found.")
+
+# -------------------------------
+# STEP 6: Backward Chaining
+# -------------------------------
+print("\n=== STEP 6: Backward Chaining ===")
+
+def backward_chaining(goal):
+    print(f"Checking goal: {goal}")
+    if goal in facts:
+        print(f" {goal} is a known fact.")
+        return True
+    for rule in rules:
+        if rule["then"] == goal:
+            print(f"Trying to prove rule for {goal}: {rule['if']} → {rule['then']}")
+            all_true = all(backward_chaining(subgoal) for subgoal in rule["if"])
+            if all_true:
+                print(f" Rule satisfied for {goal}")
+                facts.add(goal)
+                return True
+    print(f"✗ Cannot prove {goal}")
+    return False
+
+facts = {"sunny", "warm", "raining"}  # reset facts
+goal_symbol = "enjoy"
+
+if backward_chaining(goal_symbol):
+    print(f"\n Goal '{goal_symbol}' proved using Backward Chaining!")
+else:
+    print(f"\n Goal '{goal_symbol}' could not be proved.")
+
+
+
+
+
+
+
+
+
+
+# --- Simple English knowledge base ---
+english_statements = [
+    "If someone is a parent of a person, then that person is a child of the first person.",
+    "Alice is the parent of Bob.",
+    "If a person is a child of someone, then that someone is an ancestor of the person.",
+    "If a person is an ancestor of another person, then they are related.",
+    "If two people are related, they share a common family name."
+]
+print("=== English Statements ===")
+for s in english_statements:
+    print("-", s)
+# --- FOL predicates and facts ---
+# Parent(x,y), Child(y,x), Ancestor(y,x), Related(x,y), SharesFamilyName(x,y)
+rules = [
+    ('Parent', 'Child'),       # Parent(x,y) -> Child(y,x)
+    ('Child', 'Ancestor'),     # Child(x,y) -> Ancestor(y,x)
+    ('Ancestor', 'Related'),   # Ancestor(x,y) -> Related(x,y)
+    ('Related', 'SharesFamilyName')  # Related(x,y) -> SharesFamilyName(x,y)
+]
+facts = {
+    'Parent': [('Alice', 'Bob')]
+}
+goal = ('SharesFamilyName', ('Alice', 'Bob'))
+
+print("\n=== FOL Representation ===")
+print("Rules:")
+for premise, conclusion in rules:
+    print(f"If {premise}(x,y) then {conclusion}(y,x)")  # always print swapped for clarity
+print("\nFacts:")
+for pred, vals in facts.items():
+    for v in vals:
+        print(f"{pred}({v[0]}, {v[1]})")
+print(f"\nGoal: {goal[0]}({goal[1][0]}, {goal[1][1]})")
+# --- Resolution Proof (simulated) ---
+print("\n=== Resolution Proof Steps (Simulated) ===")
+print("Clauses:")
+print("1. ¬Parent(x,y) ∨ Child(y,x)")
+print("2. Parent(Alice,Bob)")
+print("3. ¬Child(x,y) ∨ Ancestor(y,x)")
+print("4. ¬Ancestor(x,y) ∨ Related(x,y)")
+print("5. ¬Related(x,y) ∨ SharesFamilyName(x,y)")
+print(f"6. ¬SharesFamilyName({goal[1][0]},{goal[1][1]})  # Negation of goal")
+print("\nResolution steps:")
+print("From (2) and (1) => Child(Bob,Alice)")
+print("From Child(Bob,Alice) and (3) => Ancestor(Alice,Bob)")
+print("From Ancestor(Alice,Bob) and (4) => Related(Alice,Bob)")
+print("From Related(Alice,Bob) and (5) => SharesFamilyName(Alice,Bob)")
+print("From SharesFamilyName(Alice,Bob) and (6) => Contradiction")
+print("Goal proved by contradiction.")
+# --- Forward Chaining ---
+def forward_chaining(facts, rules, goal):
+    known = set()
+    for pred, arglist in facts.items():
+        for args in arglist:
+            known.add((pred, args))
+    while True:
+        new_inferred = set()
+        for premise, conclusion in rules:
+            for fact_pred, fact_args in known:
+                if fact_pred == premise:
+                    # Swap arguments ONLY for the first two rules (Parent, Child)
+                    if premise in ['Parent', 'Child']:
+                        new_args = (fact_args[1], fact_args[0])
+                    else:
+                        new_args = fact_args
+                    if (conclusion, new_args) not in known:
+                        new_inferred.add((conclusion, new_args))
+        if not new_inferred:
+            break
+        known.update(new_inferred)
+        if goal in known:
+            return True, known
+    return False, known
+print("\n=== Forward Chaining ===")
+fc_result, fc_known = forward_chaining(facts, rules, goal)
+print("Goal provable?", fc_result)
+print("Known facts:")
+for k in sorted(fc_known):
+    print(f"{k[0]}{k[1]}")
+# --- Backward Chaining ---
+def backward_chaining(goal, facts, rules, visited=None):
+    if visited is None:
+        visited = set()
+    if goal in visited:
+        print(f"Already visited {goal}, avoiding loops.")
+        return False
+    visited.add(goal)
+    pred, args = goal
+    print(f"Trying to prove: {pred}{args}")
+    # Step 1: Check if the goal is directly a known fact
+    if pred in facts and args in facts[pred]:
+        print(f"Found fact: {pred}{args} -> Success!")
+        return True
+    # Step 2: Look for rules that conclude this predicate
+    applicable_rules = [rule for rule in rules if rule[1] == pred]
+    if not applicable_rules:
+        print(f"No rules found that conclude {pred}, failing.")
+        return False
+    # Step 3: For each rule, try to prove its premise recursively
+    for premise, conclusion in applicable_rules:
+        # Swap arguments for first two rules (inverse relation)
+        if premise in ['Parent', 'Child']:
+            new_goal = (premise, (args[1], args[0]))
+        else:
+            new_goal = (premise, args)
+        print(f"Because {conclusion}{args} is the goal, trying to prove premise {new_goal}")
+        if backward_chaining(new_goal, facts, rules, visited):
+            print(f"Proved {pred}{args} by rule: If {premise}(x,y) then {conclusion}(y,x)")
+            return True
+    # If none of the premises could be proved, fail
+    print(f"Failed to prove: {pred}{args}")
+    return False
+# Run and print result
+print("\n=== Backward Chaining with detailed trace ===")
+bc_result = backward_chaining(goal, facts, rules)
+print("Goal provable?", bc_result)
