@@ -1,0 +1,40 @@
+# Expert System Prototype — Admission Support System
+def admission_expert_system():
+    print("=== Admission Support Expert System ===")
+    # --- Step 1: Collect facts from user ---
+    gpa = float(input("Enter GPA (0 - 10): "))
+    interview = float(input("Enter Interview Score (0 - 10): "))
+    extra = input("Enter extracurricular performance (poor / average / good / excellent): ").lower()
+    legacy = input("Is the applicant a legacy student? (yes/no): ").lower() == "yes"
+    scholarship = input("Is the applicant eligible for scholarship? (yes/no): ").lower() == "yes"
+    # --- Step 2: Apply rules ---
+    decision = None
+    reason = ""
+    # Rule 1: High GPA and good interview
+    if gpa >= 9.0 and interview >= 7:
+        decision = "Accept"
+        reason = "High GPA and good interview performance."
+    # Rule 2: Good academics and extracurriculars
+    elif gpa >= 8.0 and extra in ["good", "excellent"] and interview >= 6:
+        decision = "Accept"
+        reason = "Good academics and extracurricular achievements."
+    # Rule 3: Moderate GPA but strong interview
+    elif 6.5 <= gpa < 8.0 and interview >= 8:
+        decision = "Waitlist"
+        reason = "Moderate GPA but excellent interview."
+    # Rule 4: Low GPA and weak interview
+    elif gpa < 6.5 and interview < 6:
+        decision = "Reject"
+        reason = "Low GPA and weak interview."
+    # Rule 5: Legacy or scholarship advantage
+    elif legacy or scholarship:
+        decision = "Waitlist"
+        reason = "Special consideration due to legacy/scholarship status."
+    else:
+        decision = "Reject"
+        reason = "Did not meet minimum admission criteria."
+    print("\n--- RESULT ---")
+    print("Decision:", decision)
+    print("Reason:", reason)
+    print("------------------------------")
+admission_expert_system()
