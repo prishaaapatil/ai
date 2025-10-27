@@ -1,0 +1,56 @@
+Animal Classification:
+dog(rottweiler).  
+cat(munchkin).  
+animal(A) :- dog(A).  
+
+
+Family Relationships
+% Facts
+parent(john, mary).
+parent(mary, susan).
+parent(mary, tom).
+parent(susan, bob).
+% Rules
+grandparent(X, Y) :- parent(X, Z), parent(Z, Y).
+parent(mary, tom).
+
+
+Simple Arithmetic
+sum(A, B, Result) :- Result is A + B.
+multiply(A, B, Result) :- Result is A * B.
+divide(A, B, Result) :- Result is A / B.
+% A number is even if remainder after division by 2 is 0
+even(N) :- 0 is N mod 2.
+% A number is odd if remainder after division by 2 is 1
+odd(N) :- 1 is N mod 2.
+ even(4).
+sum(2, 6, X).
+
+Factorials
+% Fact: factorial of 0 is 1
+factorial(0, 1).
+% Rule: factorial of N is N * factorial of N-1
+factorial(N, Result) :-
+    N > 0,
+    N1 is N - 1,
+    factorial(N1, R1),
+    Result is N * R1.
+ factorial(5, F).
+
+Fibonacci Series
+% fibonacci(N, F) :- F is the Nth Fibonacci number.
+fibonacci(0, 0).  % Base case: fib(0) = 0
+fibonacci(1, 1).  % Base case: fib(1) = 1
+fibonacci(N, F) :-
+    N > 1,
+    N1 is N - 1,
+    N2 is N - 2,
+    fibonacci(N1, F1),
+    fibonacci(N2, F2),
+    F is F1 + F2.
+fibonacci(5, F).
+
+ 
+
+
+
