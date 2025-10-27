@@ -1,0 +1,36 @@
+from queue import PriorityQueue
+# Define the graph with path costs
+graph = {
+    'S': {'A': 1, 'B': 4},
+    'A': {'B': 2, 'C': 5, 'D': 12},
+    'B': {'C': 2},
+    'C': {'D': 3},
+    'D': {}
+}
+# Heuristic values (from the image)
+heuristic = {
+    'S': 7,
+    'A': 6,
+    'B': 2,
+    'C': 1,
+    'D': 0
+}
+def a_star(start, goal):
+    pq = PriorityQueue()
+    pq.put((heuristic[start], 0, [start]))  # (f=g+h, g, path)
+    while not pq.empty():
+        f, g, path = pq.get()
+        current = path[-1]
+        if current == goal:
+            return path, g
+        for neighbor, cost in graph[current].items():
+            g_new = g + cost
+            f_new = g_new + heuristic[neighbor]
+            pq.put((f_new, g_new, path + [neighbor]))
+    return None, None
+# Run A* Search
+start = 'S'
+goal = 'D'
+path, total_cost = a_star(start, goal)
+print("Optimal Path:", " → ".join(path))
+print("Total Path Cost:", total_cost)
